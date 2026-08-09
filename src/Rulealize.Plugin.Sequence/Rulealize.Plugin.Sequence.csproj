@@ -14,9 +14,9 @@
 
   <PropertyGroup>
     <PackageId>Rulealize.Plugin.Sequence</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.2.0</Version>
     <Authors>Reny</Authors>
-    <Description>Generation, transformation and aggregation over Rulealize sequences: seq.any, seq.count, seq.takeWhile, seq.selectMany and friends.</Description>
+    <Description>Generation, transformation and aggregation over Rulealize sequences: seq.of, seq.any, seq.count, seq.takeWhile, seq.selectMany and friends.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/reny-develop/Rulealize.Plugin.Sequence</RepositoryUrl>
@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Rulealize.Abstraction" Version="0.1.0" />
+    <PackageReference Include="Rulealize.Abstraction" Version="0.3.0" />
   </ItemGroup>
 
 </Project>

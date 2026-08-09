@@ -23,6 +23,7 @@ business, so long as the re-enumerability requirement below holds.
 | Operation | Shape |
 | --- | --- |
 | `seq.empty` | `{ "op": "seq.empty" }` |
+| `seq.of` | `{ "op": "seq.of", "of": [ … ] }` |
 | `seq.any` | `{ "op": "seq.any", "source": …, "as": "c", "predicate": … }` — both optional |
 | `seq.count` | `{ "op": "seq.count", "source": …, "as": "c", "where": … }` — both optional |
 | `seq.elementAt` | `{ "op": "seq.elementAt", "source": …, "index": … }` |
@@ -30,6 +31,12 @@ business, so long as the re-enumerability requirement below holds.
 | `seq.where` | `{ "op": "seq.where", "source": …, "as": "c", "predicate": … }` |
 | `seq.select` | `{ "op": "seq.select", "source": …, "as": "c", "select": … }` |
 | `seq.selectMany` | `{ "op": "seq.selectMany", "source": …, "as": "c", "select": … }` |
+
+`seq.of` is the only way to write a sequence down. The value model gives sequences no JSON
+literal, so before it existed every sequence in a rule set had to come from somewhere else —
+Othello never noticed, because every sequence it uses comes out of a grid, but it left this
+plugin able to produce nothing except emptiness. A knight's eight offsets are not a set any
+grid operation has a name for; a rule set has to be able to say them.
 
 The name given by `as` is visible only inside that node's predicate or projection, and
 shadows an outer binding of the same name. It may be left out when the body does not look

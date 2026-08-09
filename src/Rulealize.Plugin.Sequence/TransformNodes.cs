@@ -1,13 +1,115 @@
 // Copyright (c) 2026 Reny
 // Licensed under the Apache License, Version 2.0.
 
+using System.Collections.Immutable;
+using Rulealize.Abstraction;
 using Rulealize.Abstraction.Building;
 using Rulealize.Abstraction.Evaluation;
-using Rulealize.Abstraction.Nodes;
-using Rulealize.Abstraction.Values;
+using Rulealize.Abstraction.Node;
+using Rulealize.Abstraction.Value;
 
 namespace Rulealize.Plugin.Sequence
 {
+    /// <summary>Several sequences run together into one.</summary>
+    /// <remarks>
+    /// <para>
+    /// Expressible before this existed, as <c>seq.of</c> holding the parts and
+    /// <c>seq.selectMany</c> projecting each to itself. That works, and it made the most
+    /// ordinary thing anyone does to a sequence the hardest one to read — which is a reason
+    /// to have the node, not a reason not to.
+    /// </para>
+    /// <para>
+    /// Appending to a list field is what asks for it: a history grows by one position a move,
+    /// and a rule set should be able to say so in a line.
+    /// </para>
+    /// </remarks>
+    internal sealed class ConcatNode(ImmutableArray<ExpressionNode> parts) : ExpressionNode
+    {
+        public static ExpressionNode Build(INodeBuildContext context)
+        {
+            ArgumentNullException.ThrowIfNull(context);
+            return new ConcatNode(context.RequireExpressionArray("of"));
+        }
+
+        public override RuleValue Evaluate(IEvaluationContext context)
+        {
+            ArgumentNullException.ThrowIfNull(context);
+            return RuleValue.Sequence(() => Walk(context));
+        }
+
+        private IEnumerable<RuleValue> Walk(IEvaluationContext context)
+        {
+            for (int i = 0; i < parts.Length; i++)
+            {
+                context.CancellationToken.ThrowIfCancellationRequested();
+
+                foreach (RuleValue element in parts[i].Evaluate(context).AsSequence($"seq.concat.of[{i}]"))
+                {
+                    yield return element;
+                }
+            }
+        }
+    }
+
+    /// <summary>The first <c>count</c> elements, or all of them if there are fewer.</summary>
+    /// <remarks>
+    /// A count past the end is not an error, the same way an index past the end of a sequence
+    /// is not: how long a sequence is depends on the position, and a rule asking for ten of
+    /// something that has six is asking a reasonable question.
+    /// </remarks>
+    internal sealed class TakeNode(ExpressionNode source, ExpressionNode count) : ExpressionNode
+    {
+        public static ExpressionNode Build(INodeBuildContext context)
+        {
+            ArgumentNullException.ThrowIfNull(context);
+            return new TakeNode(context.RequireExpression("source"), context.RequireExpression("count"));
+        }
+
+        public override RuleValue Evaluate(IEvaluationContext context)
+        {
+            ArgumentNullException.ThrowIfNull(context);
+
+            SequenceValue elements = source.Evaluate(context).AsSequence("seq.take.source");
+            int wanted = Count.Read(count.Evaluate(context), "seq.take.count");
+            return RuleValue.Sequence(() => elements.Take(wanted));
+        }
+    }
+
+    /// <summary>Everything after the first <c>count</c> elements.</summary>
+    /// <remarks>
+    /// The other half of keeping a bounded history: a list capped at a hundred entries drops
+    /// its oldest by skipping what is over.
+    /// </remarks>
+    internal sealed class SkipNode(ExpressionNode source, ExpressionNode count) : ExpressionNode
+    {
+        public static ExpressionNode Build(INodeBuildContext context)
+        {
+            ArgumentNullException.ThrowIfNull(context);
+            return new SkipNode(context.RequireExpression("source"), context.RequireExpression("count"));
+        }
+
+        public override RuleValue Evaluate(IEvaluationContext context)
+        {
+            ArgumentNullException.ThrowIfNull(context);
+
+            SequenceValue elements = source.Evaluate(context).AsSequence("seq.skip.source");
+            int dropped = Count.Read(count.Evaluate(context), "seq.skip.count");
+            return RuleValue.Sequence(() => elements.Skip(dropped));
+        }
+    }
+
+    /// <summary>Reads how many elements a node was asked for.</summary>
+    internal static class Count
+    {
+        public static int Read(RuleValue value, string origin)
+        {
+            int count = value.AsInt32(origin);
+            return count < 0
+                ? throw new RuleEvaluationException(origin, $"A count cannot be negative, but is {count}.")
+                : count;
+        }
+    }
+
     /// <summary>The leading elements that satisfy <c>predicate</c>.</summary>
     /// <remarks>
     /// <para>

@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Reny
 // Licensed under the Apache License, Version 2.0.
 
-using Rulealize.Abstraction.Plugins;
+using Rulealize.Abstraction.Plugin;
 
 namespace Rulealize.Plugin.Sequence
 {
@@ -26,7 +26,7 @@ namespace Rulealize.Plugin.Sequence
     {
         /// <inheritdoc />
         public PluginManifest Manifest { get; } =
-            new("Rulealize.Plugin.Sequence", new Version(1, 0, 0), "seq");
+            new("Rulealize.Plugin.Sequence", new Version(1, 2, 0), "seq");
 
         /// <inheritdoc />
         public void Register(IPluginRegistry registry)
@@ -34,6 +34,7 @@ namespace Rulealize.Plugin.Sequence
             ArgumentNullException.ThrowIfNull(registry);
 
             registry.AddExpression("empty", EmptyNode.Build);
+            registry.AddExpression("of", OfNode.Build);
             registry.AddExpression("any", AnyNode.Build);
             registry.AddExpression("count", CountNode.Build);
             registry.AddExpression("elementAt", ElementAtNode.Build);
@@ -41,6 +42,9 @@ namespace Rulealize.Plugin.Sequence
             registry.AddExpression("selectMany", SelectManyNode.Build);
             registry.AddExpression("where", WhereNode.Build);
             registry.AddExpression("select", SelectNode.Build);
+            registry.AddExpression("concat", ConcatNode.Build);
+            registry.AddExpression("take", TakeNode.Build);
+            registry.AddExpression("skip", SkipNode.Build);
         }
     }
 }

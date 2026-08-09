@@ -1,11 +1,12 @@
 // Copyright (c) 2026 Reny
 // Licensed under the Apache License, Version 2.0.
 
+using System.Collections.Immutable;
 using Rulealize.Abstraction;
 using Rulealize.Abstraction.Building;
 using Rulealize.Abstraction.Evaluation;
-using Rulealize.Abstraction.Nodes;
-using Rulealize.Abstraction.Values;
+using Rulealize.Abstraction.Node;
+using Rulealize.Abstraction.Value;
 
 namespace Rulealize.Plugin.Sequence
 {
@@ -20,6 +21,52 @@ namespace Rulealize.Plugin.Sequence
         public static ExpressionNode Build(INodeBuildContext context) => new EmptyNode();
 
         public override RuleValue Evaluate(IEvaluationContext context) => RuleValue.EmptySequence;
+    }
+
+    /// <summary>A sequence written out element by element.</summary>
+    /// <remarks>
+    /// <para>
+    /// The only way to write a sequence down. The value model gives sequences no JSON
+    /// literal, so until this existed every sequence in a rule set had to originate in some
+    /// other plugin — Othello never noticed, because every sequence it uses comes out of a
+    /// grid, but it left this plugin unable to produce anything at all except emptiness.
+    /// </para>
+    /// <para>
+    /// Chess is where it shows. A knight's eight offsets are not a set any grid operation
+    /// has a name for; they are simply eight directions, and a rule set needs to be able to
+    /// say so.
+    /// </para>
+    /// <para>
+    /// Elements are evaluated on each enumeration rather than once here, which keeps the
+    /// re-enumerability requirement satisfied by construction and costs nothing, since every
+    /// expression is pure.
+    /// </para>
+    /// </remarks>
+    internal sealed class OfNode(ImmutableArray<ExpressionNode> elements) : ExpressionNode
+    {
+        public static ExpressionNode Build(INodeBuildContext context)
+        {
+            ArgumentNullException.ThrowIfNull(context);
+            return new OfNode(context.RequireExpressionArray("of"));
+        }
+
+        public override RuleValue Evaluate(IEvaluationContext context)
+        {
+            ArgumentNullException.ThrowIfNull(context);
+
+            return elements.IsEmpty
+                ? RuleValue.EmptySequence
+                : RuleValue.Sequence(() => Enumerate(context));
+        }
+
+        private IEnumerable<RuleValue> Enumerate(IEvaluationContext context)
+        {
+            foreach (ExpressionNode element in elements)
+            {
+                context.CancellationToken.ThrowIfCancellationRequested();
+                yield return element.Evaluate(context);
+            }
+        }
     }
 
     /// <summary>Whether any element satisfies <c>predicate</c>, or the sequence is non-empty.</summary>

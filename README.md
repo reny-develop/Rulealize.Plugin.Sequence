@@ -35,14 +35,16 @@ this implementation's business, so long as re-enumerability and sequence order h
 
 ## Building
 
-`Rulealize.Abstraction` is not on nuget.org yet, so `NuGet.config` points at a folder
-feed. Produce it from the abstraction repository first:
+`dotnet build`. `Rulealize.Abstraction` restores from nuget.org like any other package, so
+this repository builds on its own.
 
-```
+[`NuGet.config`](NuGet.config) also adds a folder feed named `LocalNuGet` beside the
+repositories — added to nuget.org rather than replacing it — which is how a change to the
+abstraction is tried out before it is published. Pack it when you have changed it:
+
+```sh
 dotnet pack path\to\Rulealize.Abstraction\src\Rulealize.Abstraction -c Release -o path\to\LocalNuGet
 ```
-
-with `LocalNuGet` a sibling of this repository. Then `dotnet build`.
 
 ## License
 

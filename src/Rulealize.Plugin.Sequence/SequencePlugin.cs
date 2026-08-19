@@ -11,7 +11,7 @@ namespace Rulealize.Plugin.Sequence
     /// </summary>
     /// <remarks>
     /// <para>
-    /// This plugin does not know where a sequence came from. Othello feeds it rays and
+    /// This plugin does not know where a sequence came from. Reversi feeds it rays and
     /// coordinate lists produced by a grid plugin it has never heard of; what makes that
     /// work is that <c>Sequence</c> is a kind in the shared value model.
     /// </para>

@@ -148,8 +148,8 @@ A sequence of the elements written out. An empty array is the empty sequence.
 
 The value model gives `Sequence` no JSON literal ([§1](https://github.com/reny-develop/Rulealize.Abstraction/blob/main/doc/value-model.md)). Without this
 node **every sequence in a rule set has to come from some other plugin**. Reversi did not
-notice, because all of its sequences come out of `grid.*` — which also means Sequence did
-not satisfy [criterion A, independent loadability](https://github.com/reny-develop/Rulealize/blob/main/doc/dsl-example-reversi.md), on its own.
+notice, because all of its sequences come out of `grid.*` — which also means Sequence was
+not independently loadable: a rule set could not draw on it without requiring Grid as well.
 
 Chess's knight exposed it. Its eight offsets match no `kind` of `grid.directions`; they are
 simply eight directions, and the rule set has to be able to say so.
@@ -175,7 +175,7 @@ by construction, and since every node is pure the result does not change.
   "op": "seq.any",
   "source": <expression:Sequence>,
   "as": "<name>",              // optional
-  "predicate": <expression:Bool>   // optional
+  "predicate": <expression:Boolean>   // optional
 }
 ```
 
@@ -219,7 +219,7 @@ The first omits `predicate` (a non-empty test), the second has one.
   "op": "seq.count",
   "source": <expression:Sequence>,
   "as": "<name>",          // optional
-  "where": <expression:Bool>   // optional
+  "where": <expression:Boolean>   // optional
 }
 ```
 
@@ -291,7 +291,7 @@ elements from the front. In `flips1` a ray is at most 7 long, so it does not mat
   "op": "seq.takeWhile",
   "source": <expression:Sequence>,
   "as": "<name>",
-  "predicate": <expression:Bool>
+  "predicate": <expression:Boolean>
 }
 ```
 
@@ -375,7 +375,7 @@ but that is a property of the rules and not something this plugin guarantees.
 ### Form
 
 ```jsonc
-{ "op": "seq.where",  "source": <expression:Sequence>, "as": "<name>", "predicate": <expression:Bool> }
+{ "op": "seq.where",  "source": <expression:Sequence>, "as": "<name>", "predicate": <expression:Boolean> }
 { "op": "seq.select", "source": <expression:Sequence>, "as": "<name>", "select": <expression> }
 ```
 
@@ -420,7 +420,7 @@ range" but "not a count".
   was where they belong — here or in [Arithmetic](https://github.com/reny-develop/Rulealize.Plugin.Arithmetic/blob/main/doc/specification.md) — and the value model
   settles it: an operation that takes a sequence is a sequence operation. `math.min` taking
   a fixed list of operands is a different node that happens to share a name. What is still
-  missing is a reason: `seq.count` is the only fold five rule sets have needed, and roster,
+  missing is a reason: `seq.count` is the only fold the rule sets written so far have needed, and roster,
   the one that does arithmetic over collections, gets by with `math.max` over two operands.
   When `seq.sum` or `seq.minBy` is wanted, it goes here.
 - **No `seq.distinct`.** Implementable — the value model defines equality — and wanted by

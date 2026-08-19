@@ -12,7 +12,7 @@ namespace Rulealize.Plugin.Sequence
 {
     /// <summary>The empty sequence.</summary>
     /// <remarks>
-    /// Othello's way of saying "nothing is captured in this direction". Because
+    /// Reversi's way of saying "nothing is captured in this direction". Because
     /// <c>seq.selectMany</c> concatenates, the directions that capture nothing disappear
     /// from the result without anyone filtering them out.
     /// </remarks>
@@ -28,7 +28,7 @@ namespace Rulealize.Plugin.Sequence
     /// <para>
     /// The only way to write a sequence down. The value model gives sequences no JSON
     /// literal, so until this existed every sequence in a rule set had to originate in some
-    /// other plugin — Othello never noticed, because every sequence it uses comes out of a
+    /// other plugin — Reversi never noticed, because every sequence it uses comes out of a
     /// grid, but it left this plugin unable to produce anything at all except emptiness.
     /// </para>
     /// <para>
@@ -73,7 +73,7 @@ namespace Rulealize.Plugin.Sequence
     /// <remarks>
     /// <para>
     /// Short-circuits on the first element that qualifies, and that is worth more than it
-    /// looks. Othello asks whether the player to move has any legal move at all in order to
+    /// looks. Reversi asks whether the player to move has any legal move at all in order to
     /// decide whether passing is allowed. The answer is usually yes and usually found
     /// early; without short-circuiting, every pass check would walk sixty-four squares and
     /// eight rays out of each of them.
@@ -152,7 +152,7 @@ namespace Rulealize.Plugin.Sequence
     /// <remarks>
     /// <para>
     /// Reading past the end is <em>not</em> an error. It is where the value model's null
-    /// chain starts, and Othello's flip rule is built on it: past the end gives null, a null
+    /// chain starts, and Reversi's flip rule is built on it: past the end gives null, a null
     /// coordinate gives null from <c>grid.at</c>, and comparing that against a colour gives
     /// false. The ray that runs off the board takes the else arm without the rule author
     /// writing a bounds check.

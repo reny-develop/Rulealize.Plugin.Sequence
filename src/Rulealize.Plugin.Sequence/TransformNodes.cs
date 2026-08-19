@@ -117,7 +117,7 @@ namespace Rulealize.Plugin.Sequence
     /// point is evaluated.
     /// </para>
     /// <para>
-    /// This is the heart of how Othello's capture rule is expressed. A capture is a run of
+    /// This is the heart of how Reversi's capture rule is expressed. A capture is a run of
     /// opposing stones with one of the mover's own immediately after it; this node finds the
     /// run, and <c>seq.elementAt</c> plus an equality test checks what closes it. The
     /// predicate is a single comparison against the opponent's colour, and it happens to
@@ -226,7 +226,7 @@ namespace Rulealize.Plugin.Sequence
     /// single value is not silently wrapped.
     /// </para>
     /// <para>
-    /// Nothing is de-duplicated. Othello's eight rays out of a square are disjoint, so
+    /// Nothing is de-duplicated. Reversi's eight rays out of a square are disjoint, so
     /// concatenating what each of them captures cannot repeat a coordinate — but that is a
     /// property of the game's geometry, not a guarantee made here.
     /// </para>

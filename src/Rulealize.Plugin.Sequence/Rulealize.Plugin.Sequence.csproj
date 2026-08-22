@@ -14,7 +14,7 @@
 
   <PropertyGroup>
     <PackageId>Rulealize.Plugin.Sequence</PackageId>
-    <Version>1.2.0</Version>
+    <Version>1.3.0</Version>
     <Authors>Reny</Authors>
     <Description>Generation, transformation and aggregation over Rulealize sequences: seq.of, seq.any, seq.count, seq.takeWhile, seq.selectMany and friends.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>

@@ -4,7 +4,7 @@
 | --- | --- |
 | Identifier | `Rulealize.Plugin.Sequence` |
 | Namespace | `seq` |
-| Version | `1.2.0` |
+| Version | `1.3.0` |
 | Reserved prefix | none |
 | Depends on | [the value model](https://github.com/reny-develop/Rulealize.Abstraction/blob/main/doc/value-model.md), and nothing else |
 | Notation | [how a plugin specification is written](https://github.com/reny-develop/Rulealize.Abstraction/blob/main/doc/specification-notation.md) |
@@ -27,6 +27,7 @@ plugin out, so long as re-enumerability below is preserved.
 | `seq.of` | expression | — (added in 1.1) |
 | `seq.any` | expression | ○ `canPlace`, `hasAnyMove`, `terminal.when` |
 | `seq.count` | expression | ○ `flips1`, `terminal.result` |
+| `seq.sum` | expression | — (added in 1.3) |
 | `seq.elementAt` | expression | ○ `flips1` |
 | `seq.takeWhile` | expression | ○ `flips1` |
 | `seq.selectMany` | expression | ○ `flips` |
@@ -246,6 +247,57 @@ index of the element just past the run.
 
 ---
 
+## `seq.sum`
+
+### Form
+
+```jsonc
+{
+  "op": "seq.sum",
+  "source": <expression:Sequence>,
+  "as": "<name>",            // optional
+  "select": <expression:Number>   // optional
+}
+```
+
+### How it evaluates
+
+With a `select`, the total of what it produces for each element; without, the total of the
+elements themselves. The result is a `Number`.
+
+**The empty sequence totals zero.** That is the identity, not a special case, and it is
+what makes a sum over a hand that has not been dealt yet mean what it should.
+
+No short-circuit — a total is not known until the walk finishes.
+
+### Why `select` is here rather than left to `seq.select`
+
+For the same reason `where` is on `seq.count`: what is being summed is rarely the element
+itself. A hand holds ranks and the sum wants their values, so without the projection every
+sum of anything but bare numbers wraps its source in a `seq.select` that exists only to be
+consumed one node later.
+
+### Example (blackjack)
+
+```jsonc
+// The hard total of a hand: the cards are ranks, and each rank is worth something
+{ "op": "seq.sum", "source": { "op": "rec.at", "record": "@hand", "key": "cards" }, "as": "c",
+  "select": { "op": "def.call", "def": "value", "args": { "rank": "@c" } } }
+```
+
+### Faults
+
+| | |
+| --- | --- |
+| an element is not a `Number`, with no `select` | evaluation |
+| `select` produces something that is not a `Number` | evaluation |
+
+There is no overflow condition to state: the value model's `Number` is a decimal, and a
+sequence long enough to exhaust it cannot be built by the time `GetValidInputs` has walked
+it.
+
+---
+
 ## `seq.elementAt`
 
 ### Form
@@ -416,13 +468,14 @@ range" but "not a count".
 
 ## Decided
 
-- **Aggregates over a sequence belong here, and are not provided yet.** The unresolved part
-  was where they belong — here or in [Arithmetic](https://github.com/reny-develop/Rulealize.Plugin.Arithmetic/blob/main/doc/specification.md) — and the value model
-  settles it: an operation that takes a sequence is a sequence operation. `math.min` taking
-  a fixed list of operands is a different node that happens to share a name. What is still
-  missing is a reason: `seq.count` is the only fold the rule sets written so far have needed, and roster,
-  the one that does arithmetic over collections, gets by with `math.max` over two operands.
-  When `seq.sum` or `seq.minBy` is wanted, it goes here.
+- **Aggregates over a sequence belong here.** Where they belong — here or in
+  [Arithmetic](https://github.com/reny-develop/Rulealize.Plugin.Arithmetic/blob/main/doc/specification.md) — was settled by the value model: an operation that takes a
+  sequence is a sequence operation, and `math.min` over a fixed list of operands is a
+  different node that happens to share a name. What was missing was a reason, and blackjack
+  supplied one — a hand is a list of ranks, every rule about it asks for the total, and
+  without a fold that total has to be carried in the schema and maintained by each effect
+  that draws a card. `seq.sum` is 1.3. **`seq.minBy` is still waiting for a reason of its
+  own**, and none of the rule sets written so far picks the smallest of anything.
 - **No `seq.distinct`.** Implementable — the value model defines equality — and wanted by
   nothing. The case would be a rule where `seq.selectMany` produces duplicates that matter;
   in Reversi the rays are disjoint and in chess and shogi the move generators do not

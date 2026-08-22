@@ -148,6 +148,53 @@ namespace Rulealize.Plugin.Sequence
         }
     }
 
+    /// <summary>The total of the elements, or of <c>select</c> applied to each of them.</summary>
+    /// <remarks>
+    /// <para>
+    /// The second fold, and it waited for a rule set that wanted it. Blackjack is that rule
+    /// set: a hand is a list of ranks and its total is what every rule about it asks for.
+    /// Without this the total has to be carried in the state and maintained by each effect
+    /// that draws a card, which puts two numbers in the schema that the cards already say.
+    /// </para>
+    /// <para>
+    /// <c>select</c> is optional and mirrors what <c>where</c> is to <c>seq.count</c>. It
+    /// earns its place for the same reason: what is being summed is rarely the element
+    /// itself. A hand holds ranks and the sum wants their values, and a projection here
+    /// saves wrapping the source in a <c>seq.select</c> that exists only to be consumed.
+    /// </para>
+    /// <para>
+    /// The empty sequence totals zero, which is the identity rather than a special case,
+    /// and no short-circuit is possible — a total is not known until the walk finishes.
+    /// </para>
+    /// </remarks>
+    internal sealed class SumNode(ExpressionNode source, LocalSlot? element, ExpressionNode? projection)
+        : IterationNode(source, element)
+    {
+        public static ExpressionNode Build(INodeBuildContext context)
+        {
+            (ExpressionNode source, LocalSlot? element, ExpressionNode? projection) =
+                BuildParts(context, "select", required: false);
+
+            return new SumNode(source, element, projection);
+        }
+
+        public override RuleValue Evaluate(IEvaluationContext context)
+        {
+            SequenceValue source = Source.Evaluate(context).AsSequence("seq.sum.source");
+            decimal total = 0;
+            foreach (RuleValue item in source)
+            {
+                context.CancellationToken.ThrowIfCancellationRequested();
+
+                total += projection is null
+                    ? item.AsNumber("seq.sum.source")
+                    : projection.Evaluate(BindElement(context, item)).AsNumber("seq.sum.select");
+            }
+
+            return RuleValue.Number(total);
+        }
+    }
+
     /// <summary>The element at <c>index</c>, counting from zero, or null when there is none.</summary>
     /// <remarks>
     /// <para>

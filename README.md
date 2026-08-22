@@ -38,14 +38,6 @@ this implementation's business, so long as re-enumerability and sequence order h
 `dotnet build`. `Rulealize.Abstraction` restores from nuget.org like any other package, so
 this repository builds on its own.
 
-[`NuGet.config`](NuGet.config) also adds a folder feed named `LocalNuGet` beside the
-repositories — added to nuget.org rather than replacing it — which is how a change to the
-abstraction is tried out before it is published. Pack it when you have changed it:
-
-```sh
-dotnet pack path\to\Rulealize.Abstraction\src\Rulealize.Abstraction -c Release -o path\to\LocalNuGet
-```
-
 ## License
 
 Apache-2.0.

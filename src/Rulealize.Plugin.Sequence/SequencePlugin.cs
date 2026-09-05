@@ -26,7 +26,7 @@ namespace Rulealize.Plugin.Sequence
     {
         /// <inheritdoc />
         public PluginManifest Manifest { get; } =
-            new("Rulealize.Plugin.Sequence", new Version(1, 3, 0), "seq");
+            new("Rulealize.Plugin.Sequence", new Version(1, 3, 1), "seq");
 
         /// <inheritdoc />
         public void Register(IPluginRegistry registry)

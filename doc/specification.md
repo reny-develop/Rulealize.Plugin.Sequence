@@ -4,7 +4,7 @@
 | --- | --- |
 | Identifier | `Rulealize.Plugin.Sequence` |
 | Namespace | `seq` |
-| Version | `1.3.0` |
+| Version | `1.3.1` |
 | Reserved prefix | none |
 | Depends on | [the value model](https://github.com/reny-develop/Rulealize.Abstraction/blob/main/doc/value-model.md), and nothing else |
 | Notation | [how a plugin specification is written](https://github.com/reny-develop/Rulealize.Abstraction/blob/main/doc/specification-notation.md) |
